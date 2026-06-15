@@ -1,0 +1,70 @@
+CREATE DATABASE IF NOT EXISTS clinic_db;
+USE clinic_db;
+
+CREATE TABLE patients (
+    patient_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone VARCHAR(20) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    age INT,
+    gender ENUM('Male','Female','Other')
+);
+
+CREATE TABLE doctors (
+    doctor_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    specialization VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    timings VARCHAR(100)
+);
+
+CREATE TABLE appointments (
+    app_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    appointment_date DATE NOT NULL,
+    appointment_time TIME NOT NULL,
+    status VARCHAR(30) DEFAULT 'Pending',
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+);
+
+CREATE TABLE prescriptions (
+    prescription_id INT AUTO_INCREMENT PRIMARY KEY,
+    app_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    medicines TEXT NOT NULL,
+    notes TEXT,
+    FOREIGN KEY (app_id) REFERENCES appointments(app_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE
+);
+
+CREATE TABLE billing (
+    bill_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    app_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    billing_date DATE NOT NULL,
+    payment_status VARCHAR(30) DEFAULT 'Unpaid',
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (app_id) REFERENCES appointments(app_id) ON DELETE CASCADE
+);
+
+INSERT INTO patients (patient_id, name, email, phone, password, age, gender) VALUES
+(1, 'Ali Khan', 'ali@example.com', '03001234567', '123456', 25, 'Male');
+
+INSERT INTO doctors (doctor_id, name, specialization, phone, timings) VALUES
+(1, 'Dr. Ahmad Khan', 'General Physician', '03111222333', '09:00 AM - 02:00 PM'),
+(2, 'Dr. Sara Iqbal', 'Cardiologist', '03222333444', '02:00 PM - 06:00 PM');
+
+INSERT INTO appointments (app_id, patient_id, doctor_id, appointment_date, appointment_time, status) VALUES
+(1, 1, 1, '2026-06-09', '10:00:00', 'pending');
+
+INSERT INTO prescriptions (prescription_id, app_id, doctor_id, patient_id, medicines, notes) VALUES
+(1, 1, 1, 1, 'Paracetamol 500mg', 'Take after meals');
+
+INSERT INTO billing (bill_id, patient_id, app_id, amount, billing_date, payment_status) VALUES
+(1, 1, 1, 500.00, '2026-06-09', 'unpaid');
